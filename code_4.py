@@ -1,41 +1,41 @@
 import csv
 import pandas as pd
 big_mac_file = './big-mac-full-index.csv'
-df = pd.read_csv('big-mac-full-index.csv')
+df = pd.read_csv('./big-mac-full-index.csv')
+#YYYY-MM-DD
+
 
 def get_big_mac_price_by_year(year, country_code):
-    filtered_df = df.query(f'date == {year} and iso_a3.str.lower() == "{country_code.lower()}"')
-    mean_dollar_price = round(filtered_df['dollar_price'].mean(), 2)
-    return mean_dollar_price
+    query_text = f"date >= '{year}-01-01' and date <= '{year}-12-31' and iso_a3.str.lower() == '{country_code.lower()}'"
+    df_result = df.query(query_text)
+    mean_price = df_result['dollar_price'].mean()
+    return round(mean_price, 2)
 
 def get_big_mac_price_by_country(country_code):
-    filtered_df = df.query(f'iso_a3.str.lower() == "{country_code.lower()}"')
-    mean_dollar_price = round(filtered_df['dollar_price'].mean(), 2)
-    return mean_dollar_price
+    query_text = f"iso_a3.str.upper() == '{country_code.upper()}'"
+    df_result = df.query(query_text)
+    filtered_data = df_result[df_result['iso_a3'] == country_code.upper()]
+    mean_price = filtered_data['dollar_price'].mean()
+    return round(mean_price,2)
 
 def get_the_cheapest_big_mac_price_by_year(year):
-    min_price_row = df[df['date'] == year].nsmallest(1, 'dollar_price').iloc[0]
-    country_name = min_price_row['name']
-    iso_a3 = min_price_row['iso_a3']
-    dollar_price = min_price_row['dollar_price']
-    return f'{country_name}({iso_a3}): ${dollar_price}'
+    query_text = f"date >= '{year}-01-01' and date <= '{year}-12-31'"
+    df_result = df.query(query_text)
+    cheapest_row = df_result.loc[df_result['dollar_price'].idxmin()]
+    return f"{cheapest_row['name']}({cheapest_row['iso_a3']}): ${'%.1f' % cheapest_row['dollar_price']}"
 
 def get_the_most_expensive_big_mac_price_by_year(year):
-    max_price_row = df[df['date'] == year].nlargest(1, 'dollar_price').iloc[0]
-    country_name = max_price_row['name']
-    iso_a3 = max_price_row['iso_a3']
-    dollar_price = max_price_row['dollar_price']
-    return f'{country_name}({iso_a3}): ${dollar_price}'
+    query_text = f"date >= '{year}-01-01' and date <= '{year}-12-31'"
+    df_result = df.query(query_text)
+    expensive_row = df_result.loc[df_result['dollar_price'].idxmax()]
+    return f"{expensive_row['name']}({expensive_row['iso_a3']}): ${'%.1f' % expensive_row['dollar_price']}"
 
 if __name__ == "__main__":
     result_a = get_big_mac_price_by_year(2010, "arg")
-    print(f'Mean Big Mac Price in 2010 for Argentina: {result_a}')
-    
-    result_b = get_big_mac_price_by_country("arg")
-    print(f'Mean Big Mac Price for Argentina: {result_b}')
-    
+    print(result_a)
+    result_b = get_big_mac_price_by_country("mex")
+    print(result_b)
     result_c = get_the_cheapest_big_mac_price_by_year(2008)
-    print(f'The Cheapest Big Mac in 2008: {result_c}')
-    
-    result_d = get_the_most_expensive_big_mac_price_by_year(2003)
-    print(f'The Most Expensive Big Mac in 2003: {result_d}')
+    print(result_c)
+    result_d = get_the_most_expensive_big_mac_price_by_year(2014)
+    print(result_d)
