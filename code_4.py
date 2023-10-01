@@ -28,7 +28,7 @@ def get_the_most_expensive_big_mac_price_by_year(year):
     query_text = f"date >= '{year}-01-01' and date <= '{year}-12-31'"
     df_result = df.query(query_text)
     expensive_row = df_result.loc[df_result['dollar_price'].idxmax()]
-    return f"{expensive_row['name']}({expensive_row['iso_a3']}): ${'%.1f' % expensive_row['dollar_price']}"
+    return f"{expensive_row['name']}({expensive_row['iso_a3']}): ${'%.2f' % expensive_row['dollar_price']}"
 
 if __name__ == "__main__":
     result_a = get_big_mac_price_by_year(2010, "arg")
